@@ -10,6 +10,7 @@ import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import ConversationPage from '@/pages/pdfreader/ConversationPage';
 import DocumentTranslation from '@/pages/pdfreader/DocumentTranslationPage';
 
+// 定义 Paper 接口，用于类型检查
 interface Paper {
   key: string;
   name: string;
@@ -18,11 +19,12 @@ interface Paper {
 }
 
 const HomePage: React.FC = () => {
-  const [papers, setPapers] = useState<Paper[]>([]);
-  const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [mode, setMode] = useState<'ai' | 'translate'>('translate');
+  const [papers, setPapers] = useState<Paper[]>([]); // 保存所有上传的文件
+  const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null); // 当前选中的文件
+  const [isModalOpen, setIsModalOpen] = useState(false); // 控制 Modal 的显示
+  const [mode, setMode] = useState<'ai' | 'translate'>('translate'); // 控制模式（AI 对话或文档翻译）
 
+  // 从 localForage 加载保存的文件
   useEffect(() => {
     const loadPapers = async () => {
       const storedPapers = await localforage.getItem<Paper[]>('papers');
@@ -33,14 +35,16 @@ const HomePage: React.FC = () => {
     loadPapers();
   }, []);
 
+  // 保存文件到 localForage
   useEffect(() => {
     localforage.setItem('papers', papers);
   }, [papers]);
 
+  // 处理文件上传
   const handleAddPaper = (fileList: File[]) => {
     const newPapersPromises = fileList.map(async (file: File) => {
-      const content = await file.arrayBuffer();
-      const base64Content = await arrayBufferToBase64(content);
+      const content = await file.arrayBuffer(); // 将文件读取为 ArrayBuffer
+      const base64Content = await arrayBufferToBase64(content); // 将 ArrayBuffer 转换为 base64
       return {
         key: file.name + new Date().toISOString(),
         name: file.name,
@@ -54,6 +58,7 @@ const HomePage: React.FC = () => {
     });
   };
 
+  // 将 ArrayBuffer 转换为 base64
   const arrayBufferToBase64 = (buffer: ArrayBuffer): Promise<string> => {
     return new Promise<string>((resolve) => {
       const blob = new Blob([buffer], { type: 'application/pdf' });
@@ -63,21 +68,25 @@ const HomePage: React.FC = () => {
     });
   };
 
+  // 处理文件删除
   const handleDelete = (key: string) => {
     setPapers(papers.filter(paper => paper.key !== key));
     message.success('文件已删除');
   };
 
+  // 处理文件点击
   const handlePaperClick = (paper: Paper) => {
     setSelectedPaper(paper);
-    setIsModalVisible(true);
+    setIsModalOpen(true);
   };
 
+  // 处理 Modal 关闭
   const handleModalClose = () => {
-    setIsModalVisible(false);
+    setIsModalOpen(false);
     setSelectedPaper(null);
   };
 
+  // 表格列定义
   const columns = [
     {
       title: '名称',
@@ -108,6 +117,7 @@ const HomePage: React.FC = () => {
     },
   ];
 
+  // 创建 PDF 查看插件实例
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   return (
@@ -138,7 +148,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
         <Modal
-          visible={isModalVisible}
+          open={isModalOpen} 
           title={selectedPaper?.name}
           onCancel={handleModalClose}
           footer={null}

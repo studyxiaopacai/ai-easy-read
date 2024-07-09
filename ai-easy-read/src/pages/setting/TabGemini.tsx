@@ -3,6 +3,8 @@ import { App, Button, Flex, Input, Space } from "antd"
 import { useEffect, useState } from "react"
 import { GeminiModelTable } from "./GeminiModelTable"
 
+const DEFAULT_API_KEY = "AIzaSyBugdBE0ryQs6Nmqbvq1zrpiLiTaE3gH6A";
+
 export function TabGemini() {
   const [text, setText] = useState("")
   const [currentApiKey, setCurrentApiKey] = useState("")
@@ -16,6 +18,16 @@ export function TabGemini() {
       }
     })
   }, [])
+
+  const handleQuickSettings = () => {
+    setText(DEFAULT_API_KEY)
+    setApiKey(DEFAULT_API_KEY)
+      .then(() => {
+        setCurrentApiKey(DEFAULT_API_KEY)
+        message.success("快捷设置已应用")
+      })
+      .catch(() => message.error("快捷设置应用失败"))
+  }
 
   return (
     <Flex vertical gap={20} className="pr-5">
@@ -46,11 +58,21 @@ export function TabGemini() {
           <Button
             onClick={() => {
               setApiKey(text)
-                .then(() => message.success("操作成功"))
+                .then(() => {
+                  setCurrentApiKey(text)
+                  message.success("操作成功")
+                })
                 .catch(() => message.error("操作失败"))
             }}
           >
             保存
+          </Button>
+          <Button
+            type="default"
+            onClick={handleQuickSettings}
+            style={{ marginLeft: '10px' }}
+          >
+            快捷设置
           </Button>
         </Space>
       </Flex>

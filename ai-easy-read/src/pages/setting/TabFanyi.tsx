@@ -18,11 +18,14 @@ import { ProFormRadio, ProFormText } from "@ant-design/pro-components";
 import { Button, message } from "antd";
 import { useEffect, useState } from "react";
 
+const DEFAULT_YOUDAO_API_KEY = 'x6vy4IqSNdazcTAh8Ge7nb94VRxOzhvf';
+const DEFAULT_YOUDAO_APP_ID = '45c1b7867bc5a231';
+
 export function TabFanyi() {
-  const [provider, setProvider] = useState<TranslateProvider>("gemeni-pro");
+  const [provider, setProvider] = useState<TranslateProvider>("youdao");
   const [alapiCnToken, setAlapiCnToken] = useState<string>();
-  const [youdaoApiKey, setYoudaoApiKeyState] = useState<string>();
-  const [youdaoAppId, setYoudaoAppIdState] = useState<string>();
+  const [youdaoApiKey, setYoudaoApiKeyState] = useState<string>(DEFAULT_YOUDAO_API_KEY);
+  const [youdaoAppId, setYoudaoAppIdState] = useState<string>(DEFAULT_YOUDAO_APP_ID);
 
   useEffect(() => {
     getTranslateProvider().then((value) => {
@@ -74,7 +77,16 @@ export function TabFanyi() {
     if (youdaoApiKey && youdaoAppId) {
       setLocalYoudaoApiKey(youdaoApiKey);
       setLocalYoudaoAppId(youdaoAppId);
+      message.success('有道 API Key 和 App ID 已保存');
     }
+  };
+
+  const setQuickSettings = () => {
+    setYoudaoApiKeyState(DEFAULT_YOUDAO_API_KEY);
+    setYoudaoAppIdState(DEFAULT_YOUDAO_APP_ID);
+    setLocalYoudaoApiKey(DEFAULT_YOUDAO_API_KEY);
+    setLocalYoudaoAppId(DEFAULT_YOUDAO_APP_ID);
+    message.success('已应用快捷设置');
   };
 
   const testYoudaoAPI = async () => {
@@ -93,7 +105,7 @@ export function TabFanyi() {
         fieldProps={{
           onChange: (e) => handleProviderChange(e.target.value),
           value: provider,
-          defaultValue: "alapi-cn",
+          defaultValue: "youdao",
         }}
         options={[
           {
@@ -122,7 +134,7 @@ export function TabFanyi() {
       )}
       {provider === "youdao" && (
         <>
-        <ProFormText
+          <ProFormText
             label="有道 App ID"
             fieldProps={{
               className: "w-[300px]",
@@ -140,6 +152,9 @@ export function TabFanyi() {
           />
           <Button type="primary" onClick={saveYoudaoCredentials}>
             保存
+          </Button>
+          <Button type="default" onClick={setQuickSettings} style={{ marginLeft: '10px' }}>
+            快捷设置
           </Button>
           <Button type="primary" onClick={testYoudaoAPI} style={{ marginLeft: '10px' }}>
             测试
